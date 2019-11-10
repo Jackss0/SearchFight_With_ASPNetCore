@@ -14,16 +14,18 @@ namespace SearchFight_With_ASPNetCore.Services
     public class GoogleService : IGoogleService
     {
         private readonly IConfiguration _configuration;
-
-        public GoogleService(IConfiguration configuration)
+        private readonly IHttpClientFactory _httpClientFactory;
+        
+        public GoogleService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<List<GoogleSearch>> GoogleWebResult(string[] searches)
         {
-            HttpClient client = new HttpClient();
-
+            var googleClient = _httpClientFactory.CreateClient();
+            
             var collection = new List<GoogleSearch>();
             try
             {
@@ -31,8 +33,10 @@ namespace SearchFight_With_ASPNetCore.Services
                 {
                     string key = _configuration["googleAPI:key1"];
                     string url = $"https://app.zenserp.com/api/v2/search?q= {search}&hl=en&gl=US&location=United%20States&search_engine=google.com&apikey={key}";
-                    client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
-                    string responseBody = await client.GetStringAsync(url);
+
+                    googleClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
+                    string responseBody = await googleClient.GetStringAsync(url);
+
                     using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(responseBody)))
                     {
                         DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(GoogleSearch));
@@ -50,8 +54,6 @@ namespace SearchFight_With_ASPNetCore.Services
 
         public void GoogleWinner(List<GoogleSearch> googleResults)
         {
-            //var googleResults = GoogleWebResult(searches).Result;
-
             var maxResult = googleResults.Count > 0 ? googleResults.Max(t => t.Results) : 0;
             foreach (var search in googleResults)
             {

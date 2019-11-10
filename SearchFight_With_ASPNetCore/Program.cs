@@ -36,6 +36,7 @@ namespace SearchFight_With_ASPNetCore
                     services.AddScoped<IGoogleService, GoogleService>();
                     services.AddScoped<BingService>();
                     services.AddScoped<WinnerService>();
+                    services.AddHttpClient();
                 })
                 .Build();
 
