@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SearchFight_With_ASPNetCore": {
+      "commandName": "Project",
+      "commandLineArgs": "java .net"
+    }
+  }
+}

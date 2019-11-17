@@ -1,11 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SearchFight_With_ASPNetCore.Entities;
 using SearchFight_With_ASPNetCore.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.Configuration.CommandLine;
 
 namespace SearchFight_With_ASPNetCore
 {
@@ -37,6 +34,8 @@ namespace SearchFight_With_ASPNetCore
                     services.AddScoped<BingService>();
                     services.AddScoped<WinnerService>();
                     services.AddHttpClient();
+                    
+                    services.AddHostedService<MyClassListener>();
                 })
                 .Build();
 
@@ -47,10 +46,29 @@ namespace SearchFight_With_ASPNetCore
             var bingService = host.Services.GetService<BingService>();
             bingService.BingWinner(new[] { ".net", "java" });*/
 
-            var winnerService = host.Services.GetService<WinnerService>();
-            winnerService.TotalWinner(new[] { ".net", "java" });
+            //var hostValue = host.
 
+            var cmd = new CommandLineConfigurationProvider(args);
+            var cmd2 = new CommandLineConfigurationProvider(args);
+            var cmd3 = new CommandLineConfigurationProvider(args);
+            
+            
+            var winnerService = host.Services.GetService<WinnerService>();
+            //winnerService.TotalWinner(new[] { ".net", "java" });
             host.Run();
         }
+
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(s =>
+               {
+                   s.AddJsonFile("appsettings.json");
+               })
+               .ConfigureServices(s=> 
+               {
+                   
+               });
+        } 
     }
 }
