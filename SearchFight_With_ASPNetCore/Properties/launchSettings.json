@@ -2,7 +2,7 @@
   "profiles": {
     "SearchFight_With_ASPNetCore": {
       "commandName": "Project",
-      "commandLineArgs": "java .net"
+      "commandLineArgs": "search1=java search2=.net"
     }
   }
 }

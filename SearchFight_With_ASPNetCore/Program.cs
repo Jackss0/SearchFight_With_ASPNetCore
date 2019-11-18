@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SearchFight_With_ASPNetCore.Services;
-using Microsoft.Extensions.Configuration.CommandLine;
+using System;
 
 namespace SearchFight_With_ASPNetCore
 {
@@ -33,42 +33,43 @@ namespace SearchFight_With_ASPNetCore
                     services.AddScoped<IGoogleService, GoogleService>();
                     services.AddScoped<BingService>();
                     services.AddScoped<WinnerService>();
+
+                    services.AddTransient<MyCommandLineClass>();
+
                     services.AddHttpClient();
                     
                     services.AddHostedService<MyClassListener>();
                 })
                 .Build();
 
-            /*
-            var googleService = host.Services.GetService<IGoogleService>();
-            googleService.GoogleWinner(new[] { ".net", "java" });
+            var builder2 = new ConfigurationBuilder();
+            builder2.AddCommandLine(args);
 
-            var bingService = host.Services.GetService<BingService>();
-            bingService.BingWinner(new[] { ".net", "java" });*/
-
-            //var hostValue = host.
-
-            var cmd = new CommandLineConfigurationProvider(args);
-            var cmd2 = new CommandLineConfigurationProvider(args);
-            var cmd3 = new CommandLineConfigurationProvider(args);
+            var config = builder2.Build();
             
+            Console.WriteLine($"search1: '{config["search1"]}'");
+            Console.WriteLine($"search2: '{config["search2"]}'");
+
             
+            var cmdService = host.Services.GetService<MyCommandLineClass>();
+            var cmdValue = cmdService.GetCommandLineValue("search1");
+
             var winnerService = host.Services.GetService<WinnerService>();
-            //winnerService.TotalWinner(new[] { ".net", "java" });
             host.Run();
         }
+    }
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
+    public class MyCommandLineClass
+    {
+        IConfiguration _config;
+        public MyCommandLineClass(IConfiguration config)
         {
-            return Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration(s =>
-               {
-                   s.AddJsonFile("appsettings.json");
-               })
-               .ConfigureServices(s=> 
-               {
-                   
-               });
-        } 
+            _config = config;
+        }
+
+        public string GetCommandLineValue(string key)
+        {
+            return _config[key];
+        }
     }
 }
