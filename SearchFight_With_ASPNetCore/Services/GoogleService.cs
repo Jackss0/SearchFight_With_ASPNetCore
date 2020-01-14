@@ -31,11 +31,15 @@ namespace SearchFight_With_ASPNetCore.Services
             {
                 foreach (var search in searches)
                 {
-                    string key = _configuration["googleAPI:key1"];
-                    string url = $"https://app.zenserp.com/api/v2/search?q= {search}&hl=en&gl=US&location=United%20States&search_engine=google.com&apikey={key}";
+                    var key = _configuration["googleAPI:key1"];
+                    var url = _configuration["googleAPI:url"];
+                    var commonProps = _configuration["googleAPI:common_props"];
+                    var searchEngine = _configuration["googleAPI:search_engine"];
+
+                    var querySearch = $"{url}search?q={search}&search_engine={searchEngine}&apikey={key}";
 
                     googleClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
-                    string responseBody = await googleClient.GetStringAsync(url);
+                    var responseBody = await googleClient.GetStringAsync(querySearch);
 
                     using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(responseBody)))
                     {

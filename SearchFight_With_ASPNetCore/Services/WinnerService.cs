@@ -15,11 +15,25 @@ namespace SearchFight_With_ASPNetCore.Services
             _googleService = googleService;
         }
 
+        public static void SearchesPerEngine(List<GoogleSearch> googleSearches)
+        {
+            foreach (var engines in googleSearches)
+            {
+                Printer.PrintYellow($"\"{engines.OriginalQuery.Value}\"");
+                Printer.Print(" searchs on ");
+                Printer.PrintBlue($"Google: ");
+                Printer.PrintGray($"{engines.Results}");
+                Printer.Print(" results");
+                Console.WriteLine();
+            }
+        }
+
         public void TotalWinner(string[] searches)
         {
             var googleSearches = _googleService.GoogleWebResult(searches).Result;
+            SearchesPerEngine(googleSearches);
             _googleService.GoogleWinner(googleSearches);
-            //var engineAndResults = bingSearches.Zip(googleSearches, (b, g) => new { BingSearch = b, GoogleSearch = g }).ToList();
+
             var maxSumResults = googleSearches.GroupBy(
                                                          e => e.OriginalQuery.Value)
                                                          .Select(s => new Winner(

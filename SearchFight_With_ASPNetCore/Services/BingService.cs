@@ -41,16 +41,17 @@ namespace SearchFight_With_ASPNetCore.Services
         public async Task<List<BingSearch>> BingWebResult(string[] searches)
         {
             var bingClient = _httpClientFactory.CreateClient();
-            var collection = new List<BingSearch> { };
+            var collection = new List<BingSearch>();
             try
             {
                 foreach (var search in searches)
                 {
-                    string key = _configuration["bingAPI:key1"];
-                    string url = $"https://api.cognitive.microsoft.com/bing/v7.0/search?q= {search}";
+                    var key = _configuration["bingAPI:key1"];
+                    var url = _configuration["bingAPI:url"];
 
+                    var querySearch = $"{url}search?q={search}";
                     bingClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
-                    string responseBody = await bingClient.GetStringAsync(url);
+                    var responseBody = await bingClient.GetStringAsync(querySearch);
 
                     using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(responseBody)))
                     {

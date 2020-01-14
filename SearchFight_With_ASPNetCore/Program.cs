@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SearchFight_With_ASPNetCore.Services;
@@ -14,7 +16,7 @@ namespace SearchFight_With_ASPNetCore
                 .ConfigureHostConfiguration(builder =>
                 {
                     builder.SetBasePath(
-                        @"C:\Users\USER\source\repos\SearchFight_With_ASPNetCore\SearchFight_With_ASPNetCore");
+                        @"D:\Repos\SearchFight_With_ASPNetCore_2\SearchFight_With_ASPNetCore");
                     builder.AddJsonFile("hostsettings.json", optional: true);
                     builder.AddEnvironmentVariables(prefix: "My_Env_Variable");
                     builder.AddCommandLine(args);
@@ -22,14 +24,19 @@ namespace SearchFight_With_ASPNetCore
                 .ConfigureAppConfiguration((context, configApp) =>
                 {
                     configApp.SetBasePath(
-                        @"C:\Users\USER\source\repos\SearchFight_With_ASPNetCore\SearchFight_With_ASPNetCore");
+                        @"D:\Repos\SearchFight_With_ASPNetCore_2\SearchFight_With_ASPNetCore");
                     configApp.AddJsonFile("appsettings.json", optional: false);
                     configApp.AddEnvironmentVariables(prefix: "My_Other_Env_Variable");
                     configApp.AddCommandLine(args);
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    services.AddScoped<GoogleService>();
+                    services.AddTransient<IOperationTransient, Operation>();
+                    services.AddScoped<IOperationScoped, Operation>();
+                    services.AddSingleton<IOperationSingleton, Operation>();
+                    services.AddSingleton<IOperationSingletonInstance>(new Operation(Guid.Empty));
+
+                    services.AddTransient<GoogleService>();
                     services.AddScoped<IGoogleService, GoogleService>();
                     services.AddScoped<BingService>();
                     services.AddScoped<WinnerService>();
@@ -41,20 +48,9 @@ namespace SearchFight_With_ASPNetCore
                     services.AddHostedService<MyClassListener>();
                 })
                 .Build();
-
-            var builder2 = new ConfigurationBuilder();
-            builder2.AddCommandLine(args);
-
-            var config = builder2.Build();
             
-            Console.WriteLine($"search1: '{config["search1"]}'");
-            Console.WriteLine($"search2: '{config["search2"]}'");
-
-            
-            var cmdService = host.Services.GetService<MyCommandLineClass>();
-            var cmdValue = cmdService.GetCommandLineValue("search1");
-
             var winnerService = host.Services.GetService<WinnerService>();
+            winnerService.TotalWinner(args);
             host.Run();
         }
     }
